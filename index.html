@@ -21,7 +21,7 @@
       </div>
        <div>
         <label class="block font-medium mb-1">Telefone</label>
-        <input type="number" id="Tel_cliente" placeholder="Telefone do cliente"
+        <input type="tel" id="Tel_cliente" placeholder="Telefone do cliente"
                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
       <div>
@@ -177,7 +177,7 @@
       doc.setTextColor(0);
       doc.text(`Cliente: ${cliente}`, 40, 75);
       doc.text(`Telefone: ${telefone}`, 40, 90);
-      doc.text(`Data: ${dataFormatada}`, 40, 90);
+      doc.text(`Data: ${dataFormatada}`, 40, 105);
 
       // Tabela cabeçalho
       let y = 120;
@@ -251,6 +251,7 @@
   </script>
 </body>
 </html>
+
 
 
 
