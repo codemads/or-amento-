@@ -134,7 +134,7 @@
         const telefone = document.getElementById('Tel_cliente').value.trim(); // <- adicionado
          const dataISO = document.getElementById('data').value;
           const dataFormatada = formatarData(dataISO);
-
+      const linhas = document.querySelectorAll('#itens-body tr');
 
       if (!cliente) {
         alert('Preencha o nome do cliente.');
@@ -251,5 +251,6 @@
   </script>
 </body>
 </html>
+
 
 
