@@ -205,9 +205,10 @@
         doc.setTextColor(0);
         doc.text(desc, 45, y);
         doc.text(qtd.toString(), 300, y, { align: 'center' });
-        doc.text(`R$ ${preco.replace('.', ',')}`, 360, y, { align: 'right' });
-        doc.text(`R$ ${total.replace('.', ',')}`, 450, y, { align: 'right' });
-        y += 22;
+        doc.text(`R$ ${Number(preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 360, y, { align: 'right' });
+        doc.text(`R$ ${Number(total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 450, y, { align: 'right' });
+
+        y += 23;
 
         if (y > 750) {
           doc.addPage();
@@ -251,6 +252,7 @@
   </script>
 </body>
 </html>
+
 
 
 
