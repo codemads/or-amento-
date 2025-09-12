@@ -222,7 +222,7 @@
       y += 20;
 
       doc.setFontSize(12);
-      doc.text(`Total: R$totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2 }`);
+      doc.text(`Total: ${Number(totalGeral).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
       
       y += 18;
       doc.setTextColor(34, 139, 34);
@@ -253,6 +253,7 @@
   </script>
 </body>
 </html>
+
 
 
 
