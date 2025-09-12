@@ -186,7 +186,7 @@
       doc.rect(40, y, 515, 20, 'F');
       doc.setTextColor(0);
       doc.text('Descrição', 45, y + 14);
-      doc.text('Qtd', 300, y + 14, { align: 'center' });
+      doc.text('Qtd', 270, y + 14, { align: 'center' });
       doc.text('Valor', 360, y + 14, { align: 'right' });
       doc.text('Total', 450, y + 14, { align: 'right' });
       y += 33;
@@ -204,7 +204,7 @@
         doc.rect(40, y - 12, 515, 20, 'F');
         doc.setTextColor(0);
         doc.text(desc, 45, y);
-        doc.text(qtd.toString(), 300, y, { align: 'center' });
+        doc.text(qtd.toString(), 270, y, { align: 'center' });
         doc.text(`R$ ${Number(preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 360, y, { align: 'right' });
         doc.text(`R$ ${Number(total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 450, y, { align: 'right' });
 
@@ -252,6 +252,7 @@
   </script>
 </body>
 </html>
+
 
 
 
