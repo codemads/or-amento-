@@ -222,7 +222,8 @@
       y += 20;
 
       doc.setFontSize(12);
-      doc.text(`Total: R$ ${totalGeral.toFixed(2).replace('.', ',')}`, 40, y);
+      doc.text(`Total: R$totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+      
       y += 18;
       doc.setTextColor(34, 139, 34);
       doc.text(` Pagamento à vista (10% desconto): R$ ${totalComDesconto.toFixed(2).replace('.', ',')}`, 40, y);
@@ -252,6 +253,7 @@
   </script>
 </body>
 </html>
+
 
 
 
