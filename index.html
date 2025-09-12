@@ -130,10 +130,11 @@
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'pt', format: 'a4' });
 
-      const cliente = document.getElementById('cliente').value.trim();
-      const dataISO = document.getElementById('data').value;
-      const dataFormatada = formatarData(dataISO);
-      const linhas = document.querySelectorAll('#itens-body tr');
+     const cliente = document.getElementById('cliente').value.trim();
+        const telefone = document.getElementById('Tel_cliente').value.trim(); // <- adicionado
+         const dataISO = document.getElementById('data').value;
+          const dataFormatada = formatarData(dataISO);
+
 
       if (!cliente) {
         alert('Preencha o nome do cliente.');
@@ -175,7 +176,7 @@
       doc.setFontSize(12);
       doc.setTextColor(0);
       doc.text(`Cliente: ${cliente}`, 40, 75);
-      doc.text(`Telefone: ${Tel_cliente}`, 40, 75);
+      doc.text(`Telefone: ${telefone}`, 40, 90);
       doc.text(`Data: ${dataFormatada}`, 40, 90);
 
       // Tabela cabeçalho
@@ -250,4 +251,5 @@
   </script>
 </body>
 </html>
+
 
