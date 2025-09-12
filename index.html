@@ -220,9 +220,8 @@
       const totalGeral = parseFloat(document.getElementById('total-geral').innerText.replace(',', '.'));
       const totalComDesconto = totalGeral * 0.9;
       y += 20;
-
       doc.setFontSize(12);
-      doc.text(`Total: ${Number(totalGeral).toLocaleString('pt-BR', { minimumFractionDigits: 2 })})`;
+       doc.text(`Total: R$ ${totalGeral.toFixed(2).replace('.', ',')}`, 40, y);
       
       y += 18;
       doc.setTextColor(34, 139, 34);
@@ -253,6 +252,7 @@
   </script>
 </body>
 </html>
+
 
 
 
