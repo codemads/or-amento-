@@ -19,7 +19,7 @@
         <input type="text" id="cliente" placeholder="Nome do cliente"
                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
-       <div>
+      <div>
         <label class="block font-medium mb-1">Telefone</label>
         <input type="tel" id="Tel_cliente" placeholder="Telefone do cliente"
                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -60,7 +60,19 @@
     <!-- Totais -->
     <div class="text-right space-y-1 text-sm md:text-base font-medium">
       <div>Total: R$ <span id="total-geral">0,00</span></div>
-      <div class="text-green-600">À vista (10% desconto): R$ <span id="total-desconto">0,00</span></div>
+      <div class="text-green-600" style="display: none;">À vista (<span id="label-desconto">10</span>% desconto): R$ <span id="total-desconto">0,00</span></div>
+    </div>
+
+    <!-- Desconto opcional -->
+    <div class="mt-6 flex flex-col md:flex-row md:items-center md:justify-end gap-2">
+      <label class="flex items-center space-x-2">
+        <input type="checkbox" id="usarDesconto" onchange="atualizarTotais()" />
+        <span>Aplicar desconto</span>
+      </label>
+      <input type="number" id="percentualDesconto" value="10" min="0" max="100"
+             class="w-24 border border-gray-300 rounded px-2 py-1 text-right"
+             oninput="atualizarTotais()" />
+      <span class="text-sm">%</span>
     </div>
 
     <!-- Botão PDF -->
@@ -73,7 +85,6 @@
   </div>
 
   <script>
-    // Define a data padrão
     window.onload = () => {
       const hoje = new Date();
       const iso = hoje.toISOString().slice(0, 10);
@@ -82,7 +93,6 @@
 
     function formatarData(dataISO) {
       const data = new Date(dataISO);
-      // Corrige fuso para GMT-3 (Brasil)
       const dataCorrigida = new Date(data.getTime() + (3 * 60 * 60 * 1000));
       const dia = String(dataCorrigida.getDate()).padStart(2, '0');
       const mes = String(dataCorrigida.getMonth() + 1).padStart(2, '0');
@@ -122,51 +132,46 @@
         totalGeral += total;
       });
 
+      const usarDesconto = document.getElementById('usarDesconto').checked;
+      const percentual = parseFloat(document.getElementById('percentualDesconto').value) || 0;
+      let totalDesconto = totalGeral;
+
+      if (usarDesconto && percentual > 0) {
+        totalDesconto = totalGeral * (1 - percentual / 100);
+        document.querySelector('.text-green-600').style.display = 'block';
+        document.getElementById('label-desconto').innerText = percentual;
+      } else {
+        document.querySelector('.text-green-600').style.display = 'none';
+      }
+
       document.getElementById('total-geral').innerText = totalGeral.toFixed(2).replace('.', ',');
-      document.getElementById('total-desconto').innerText = (totalGeral * 0.9).toFixed(2).replace('.', ',');
+      document.getElementById('total-desconto').innerText = totalDesconto.toFixed(2).replace('.', ',');
     }
 
     async function gerarPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ unit: 'pt', format: 'a4' });
 
-     const cliente = document.getElementById('cliente').value.trim();
-        const telefone = document.getElementById('Tel_cliente').value.trim(); // <- adicionado
-         const dataISO = document.getElementById('data').value;
-          const dataFormatada = formatarData(dataISO);
+      const cliente = document.getElementById('cliente').value.trim();
+      const telefone = document.getElementById('Tel_cliente').value.trim();
+      const dataISO = document.getElementById('data').value;
+      const dataFormatada = formatarData(dataISO);
       const linhas = document.querySelectorAll('#itens-body tr');
 
-      if (!cliente) {
-        alert('Preencha o nome do cliente.');
-        return;
-      }
+      if (!cliente) return alert('Preencha o nome do cliente.');
+      if (linhas.length === 0) return alert('Adicione pelo menos um item.');
 
-      if (linhas.length === 0) {
-        alert('Adicione pelo menos um item.');
-        return;
-      }
-
-      // Valida itens (descrição e valores)
       for (let linha of linhas) {
         const desc = linha.querySelector('.descricao').value.trim();
         const qtd = parseFloat(linha.querySelector('.quantidade').value);
         const preco = parseFloat(linha.querySelector('.preco').value);
 
-        if (!desc) {
-          alert('A descrição do item não pode estar vazia.');
-          return;
-        }
-        if (qtd <= 0 || isNaN(qtd)) {
-          alert('A quantidade deve ser maior que zero.');
-          return;
-        }
-        if (preco < 0 || isNaN(preco)) {
-          alert('O preço unitário deve ser zero ou maior.');
+        if (!desc || qtd <= 0 || preco < 0 || isNaN(qtd) || isNaN(preco)) {
+          alert('Preencha todos os campos corretamente nos itens.');
           return;
         }
       }
 
-      // Cabeçalho
       doc.setFontSize(20);
       doc.setTextColor(33, 150, 243);
       doc.text('ORÇAMENTO', 40, 50);
@@ -179,7 +184,6 @@
       doc.text(`Telefone: ${telefone}`, 40, 90);
       doc.text(`Data: ${dataFormatada}`, 40, 105);
 
-      // Tabela cabeçalho
       let y = 133;
       doc.setFontSize(11);
       doc.setFillColor(240, 240, 240);
@@ -191,59 +195,49 @@
       doc.text('Total', 450, y + 14, { align: 'right' });
       y += 33;
 
-      // Itens com zebra
-           linhas.forEach((linha, idx) => {
-        const desc = linha.querySelector('.descricao').value.trim() || '';
+      linhas.forEach((linha, idx) => {
+        const desc = linha.querySelector('.descricao').value.trim();
         const qtd = linha.querySelector('.quantidade').value;
         const preco = parseFloat(linha.querySelector('.preco').value).toFixed(2);
         const total = parseFloat(linha.querySelector('.total').innerText.replace(',', '.')).toFixed(2);
 
-        // Divide a descrição em linhas com no máximo 235pt de largura
-        const descLines = doc.splitTextToSize(desc, 235);
+        const descLines = doc.splitTextToSize(desc, 200);
         const lineHeight = 14;
         const blocoAltura = descLines.length * lineHeight;
-
-        // Alterna a cor de fundo tipo "zebra"
         const fillColor = (idx % 2 === 0) ? [255, 255, 255] : [245, 245, 245];
         doc.setFillColor(...fillColor);
         doc.rect(40, y - 10, 515, blocoAltura + 8, 'F');
 
-        // Desenha a descrição (múltiplas linhas)
         doc.setTextColor(0);
         doc.text(descLines, 45, y);
-
-        // Alinha os outros textos verticalmente ao MEIO do bloco
         const yCentral = y + (descLines.length - 1) * (lineHeight / 2);
-
         doc.text(qtd.toString(), 270, yCentral, { align: 'center' });
         doc.text(`R$ ${Number(preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 360, yCentral, { align: 'right' });
         doc.text(`R$ ${Number(total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 450, yCentral, { align: 'right' });
 
-        // Avança para a próxima linha
         y += blocoAltura + 10;
-
-        // Quebra de página se necessário
         if (y > 750) {
           doc.addPage();
           y = 50;
         }
       });
 
-
-
-
-      // Totais
       const totalGeral = parseFloat(document.getElementById('total-geral').innerText.replace(',', '.'));
-      const totalComDesconto = totalGeral * 0.9;
+      const usarDesconto = document.getElementById('usarDesconto').checked;
+      const percentual = parseFloat(document.getElementById('percentualDesconto').value) || 0;
+      const totalComDesconto = usarDesconto && percentual > 0 ? totalGeral * (1 - percentual / 100) : null;
+
       y += 20;
       doc.setFontSize(12);
-       doc.text(`Total: R$ ${totalGeral.toFixed(2).replace('.', ',')}`, 40, y);
-      
-      y += 18;
-      doc.setTextColor(34, 139, 34);
-      doc.text(` Pagamento à vista (10% desconto): R$ ${totalComDesconto.toFixed(2).replace('.', ',')}`, 40, y);
+      doc.setTextColor(0);
+      doc.text(`Total: R$ ${totalGeral.toFixed(2).replace('.', ',')}`, 40, y);
 
-      // Observações
+      if (totalComDesconto !== null) {
+        y += 18;
+        doc.setTextColor(34, 139, 34);
+        doc.text(`Pagamento à vista (${percentual}% desconto): R$ ${totalComDesconto.toFixed(2).replace('.', ',')}`, 40, y);
+      }
+
       y += 30;
       doc.setFontSize(10);
       doc.setTextColor(100);
@@ -251,10 +245,9 @@
       y += 12;
       doc.text('• Orçamento com validade de 15 dias. Após esse prazo, será necessário gerar um novo orçamento.', 40, y);
 
-      // Assinatura fake
       y += 60;
       doc.setDrawColor(0);
-      doc.line(40, y, 250, y); // linha assinatura
+      doc.line(40, y, 250, y);
       y += 15;
       doc.setFontSize(11);
       doc.setTextColor(0);
@@ -268,21 +261,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
