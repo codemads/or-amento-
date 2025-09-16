@@ -193,28 +193,37 @@
 
       // Itens com zebra
       linhas.forEach((linha, idx) => {
-        const desc = linha.querySelector('.descricao').value || '';
-        const qtd = linha.querySelector('.quantidade').value;
-        const preco = parseFloat(linha.querySelector('.preco').value).toFixed(2);
-        const total = parseFloat(linha.querySelector('.total').innerText.replace(',', '.')).toFixed(2);
+  const desc = linha.querySelector('.descricao').value || '';
+  const qtd = linha.querySelector('.quantidade').value;
+  const preco = parseFloat(linha.querySelector('.preco').value).toFixed(2);
+  const total = parseFloat(linha.querySelector('.total').innerText.replace(',', '.')).toFixed(2);
 
-        if (idx % 2 === 0) doc.setFillColor(255, 255, 255);
-        else doc.setFillColor(245, 245, 245);
+  const descLines = doc.splitTextToSize(desc, 210); // largura da descrição (ajustável)
+  const lineHeight = 12;
+  const itemHeight = descLines.length * lineHeight;
 
-        doc.rect(40, y - 12, 515, 20, 'F');
-        doc.setTextColor(0);
-        doc.text(desc, 45, y);
-        doc.text(qtd.toString(), 270, y, { align: 'center' });
-        doc.text(`R$ ${Number(preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 360, y, { align: 'right' });
-        doc.text(`R$ ${Number(total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 450, y, { align: 'right' });
+  // Cores de fundo em "zebra"
+  if (idx % 2 === 0) doc.setFillColor(255, 255, 255);
+  else doc.setFillColor(245, 245, 245);
 
-        y += 23;
+  // Fundo do item (retângulo)
+  doc.rect(40, y - 12, 515, itemHeight + 8, 'F');
 
-        if (y > 750) {
-          doc.addPage();
-          y = 50;
-        }
-      });
+  // Texto
+  doc.setTextColor(0);
+  doc.text(descLines, 45, y);
+  doc.text(qtd.toString(), 270, y, { align: 'center' });
+  doc.text(`R$ ${Number(preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 360, y, { align: 'right' });
+  doc.text(`R$ ${Number(total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 450, y, { align: 'right' });
+
+  y += itemHeight + 10;
+
+  if (y > 750) {
+    doc.addPage();
+    y = 50;
+  }
+});
+
 
       // Totais
       const totalGeral = parseFloat(document.getElementById('total-geral').innerText.replace(',', '.'));
@@ -252,6 +261,7 @@
   </script>
 </body>
 </html>
+
 
 
 
