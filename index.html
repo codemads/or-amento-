@@ -192,40 +192,43 @@
       y += 33;
 
       // Itens com zebra
-      linhas.forEach((linha, idx) => {
-        const desc = linha.querySelector('.descricao').value || '';
+           linhas.forEach((linha, idx) => {
+        const desc = linha.querySelector('.descricao').value.trim() || '';
         const qtd = linha.querySelector('.quantidade').value;
         const preco = parseFloat(linha.querySelector('.preco').value).toFixed(2);
         const total = parseFloat(linha.querySelector('.total').innerText.replace(',', '.')).toFixed(2);
 
-        // Quebra a descrição em múltiplas linhas com largura máxima de 200pt
+        // Divide a descrição em linhas com no máximo 200pt de largura
         const descLines = doc.splitTextToSize(desc, 200);
         const lineHeight = 14;
-        const blockHeight = descLines.length * lineHeight;
+        const blocoAltura = descLines.length * lineHeight;
 
-        // Alterna a cor de fundo (zebra)
-        doc.setFillColor(idx % 2 === 0 ? 255 : 245);
-        doc.rect(40, y - 10, 515, blockHeight + 8, 'F'); // fundo do bloco
+        // Alterna a cor de fundo tipo "zebra"
+        const fillColor = (idx % 2 === 0) ? [255, 255, 255] : [245, 245, 245];
+        doc.setFillColor(...fillColor);
+        doc.rect(40, y - 10, 515, blocoAltura + 8, 'F');
 
-        // Insere a descrição (múltiplas linhas)
+        // Desenha a descrição (múltiplas linhas)
         doc.setTextColor(0);
         doc.text(descLines, 45, y);
 
-        // Alinha os outros campos à primeira linha
-        const yAlign = y;
+        // Alinha os outros textos verticalmente ao MEIO do bloco
+        const yCentral = y + (descLines.length - 1) * (lineHeight / 2);
 
-        doc.text(qtd.toString(), 270, yAlign, { align: 'center' });
-        doc.text(`R$ ${Number(preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 360, yAlign, { align: 'right' });
-        doc.text(`R$ ${Number(total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 450, yAlign, { align: 'right' });
+        doc.text(qtd.toString(), 270, yCentral, { align: 'center' });
+        doc.text(`R$ ${Number(preco).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 360, yCentral, { align: 'right' });
+        doc.text(`R$ ${Number(total).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 450, yCentral, { align: 'right' });
 
-        // Atualiza o Y para a próxima linha, com espaço extra
-        y += blockHeight + 10;
+        // Avança para a próxima linha
+        y += blocoAltura + 10;
 
+        // Quebra de página se necessário
         if (y > 750) {
           doc.addPage();
           y = 50;
         }
       });
+
 
 
 
@@ -265,6 +268,7 @@
   </script>
 </body>
 </html>
+
 
 
 
