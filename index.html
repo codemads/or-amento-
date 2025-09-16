@@ -198,8 +198,8 @@
         const preco = parseFloat(linha.querySelector('.preco').value).toFixed(2);
         const total = parseFloat(linha.querySelector('.total').innerText.replace(',', '.')).toFixed(2);
 
-        // Divide a descrição em linhas com no máximo 200pt de largura
-        const descLines = doc.splitTextToSize(desc, 200);
+        // Divide a descrição em linhas com no máximo 235pt de largura
+        const descLines = doc.splitTextToSize(desc, 235);
         const lineHeight = 14;
         const blocoAltura = descLines.length * lineHeight;
 
@@ -268,6 +268,7 @@
   </script>
 </body>
 </html>
+
 
 
 
